@@ -1,0 +1,62 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: rcabrera
+        uid: 1001
+      context: ./
+      dockerfile: Dockerfile
+    image: api
+    container_name: api-rc
+    restart: unless-stopped
+    working_dir: /var/www/
+    depends_on: 
+      - db
+      - nginx
+    volumes:
+      - ./:/var/www
+    networks:
+      - servicios
+
+  db:
+    image: mysql:5.7
+    container_name: mysql-rc
+    restart: unless-stopped
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+      #- mysql:/var/lib/mysql # descomentar si quiere usar el volume de docker
+      - C:\mnt\data\mysql:/var/lib/mysql #descomentar si quiere usar una ruta local
+
+    networks:
+      - servicios
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-rc
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
+    networks:
+      - servicios
+
+#volumes: # comentar si no se quiere usar el volume de docker
+#  mysql: # comentar si no se quiere usar el volume de docker
+
+networks:
+  servicios:
+    external: # comentar si no existe red docker
+      name: servicios # comentar si no existe red docker
+    #driver: bridge

@@ -1,0 +1,62 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: rcabrera # cambiar si se requiere el utilizar otro usuario
+        uid: 1001 # cambiar si se requiere el utilizar otro usuario
+      context: ./
+      dockerfile: Dockerfile
+    image: api
+    container_name: api
+    restart: unless-stopped
+    working_dir: /var/www/
+    depends_on: 
+      - db
+      - nginx
+    volumes:
+      - ./:/var/www
+    networks:
+      - servicios
+
+  db:
+    ports:
+      - 3306:3306
+    image: mysql:5.7
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: prod
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+      #- mysql:/var/lib/mysql # descomentar si quiere usar el volume de docker
+      - /mnt/data/mysql:/var/lib/mysql #descomentar si quiere usar una ruta local
+
+    networks:
+      - servicios
+
+  nginx:
+    ports:
+      - 80:80
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
+    networks:
+      - servicios
+
+#volumes: # descomentar si se quiere usar el volume de docker
+#  mysql: # descomentar si se quiere usar el volume de docker
+
+networks:
+  servicios:
+    external: # comentar si no existe red docker
+      name: servicios # comentar si no existe red docker
+    #driver: bridge # descomentar si no existe red docker. Creará una red con el nombre API-SERVICIOS_SERVICIOS
