@@ -1,8 +1,9 @@
 **Requerimientos**
--Instalar Docker y Docker-Compose [](https://www.docker.com/products/docker-desktop)
--Descargar el repositorio en la carpeta destinada a desarrollo, el ambiente de la API se instalara
 
--Configurar los siguientes archivos:
+- Instalar Docker y Docker-Compose [](https://www.docker.com/products/docker-desktop)
+- Descargar el repositorio en la carpeta destinada a desarrollo, el ambiente de la API se instalara
+
+- Configurar los siguientes archivos:
 * cambiar nombre del archivo .env.example por .env 
     - en linux: cp .env.example .env
     - en windows: ren .env.example .env
